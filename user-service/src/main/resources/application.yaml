@@ -8,3 +8,7 @@ spring:
     password: 12345
   liquibase:
     change-log: classpath:/db/changelog/changelog.xml
+  jpa:
+    properties:
+      hibernate:
+        default_schema: entities
