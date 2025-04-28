@@ -1,11 +1,11 @@
 server:
-  port: 8081
+  port: 8082
 spring:
   application:
-    name: user-service
+    name: company-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:6541/users
+    url: jdbc:postgresql://localhost:6542/companies
     username: dbuser
     password: 12345
   liquibase:

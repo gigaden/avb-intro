@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import ru.gigaden.userservice.entity.User;
 
 /**
- * Репозиторий для работы с юзерами
+ * A repository for working with users
  * */
 public interface UserRepository extends JpaRepository<User, Long> {
 }

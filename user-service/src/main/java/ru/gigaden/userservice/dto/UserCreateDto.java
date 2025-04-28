@@ -1,7 +1,10 @@
 package ru.gigaden.userservice.dto;
 
-public record UserCreateDto(String firstName,
-                            String lastName,
-                            String phoneNumber,
-                            Long companyId) {
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+public record UserCreateDto(@NotNull String firstName,
+                            @NotNull String lastName,
+                            @NotNull String phoneNumber,
+                            @NotNull @Positive Long companyId) {
 }

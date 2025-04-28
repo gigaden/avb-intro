@@ -1,5 +1,5 @@
 services:
-  db:
+  db-users:
     image: postgres:16.1
     container_name: postgres-avb-users
     ports:
@@ -8,6 +8,21 @@ services:
       - POSTGRES_PASSWORD=12345
       - POSTGRES_USER=dbuser
       - POSTGRES_DB=users
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+
+  db-companies:
+    image: postgres:16.1
+    container_name: postgres-avb-companies
+    ports:
+      - "6542:5432"
+    environment:
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_USER=dbuser
+      - POSTGRES_DB=companies
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
