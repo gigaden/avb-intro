@@ -1,10 +1,10 @@
-package ru.gigaden.avb;
+package ru.gigaden.apigateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AvbApplicationTests {
+class ApiGatewayApplicationTests {
 
     @Test
     void contextLoads() {
