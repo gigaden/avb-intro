@@ -76,6 +76,14 @@ public class CompanyServiceImpl implements CompanyService {
         log.info("The company with id {} has been deleted", companyId);
     }
 
+    @Override
+    public boolean checkCompanyIsExist(Long companyId) {
+        log.info("Trying to check the company by id {}", companyId);
+        boolean isExist = companyRepository.existsById(companyId);
+        log.info("The company with id {} is exist", companyId);
+        return isExist;
+    }
+
     public void setNewCompaniesField(Company company, CompanyCreateDto dto) {
         company.setCompanyName(dto.companyName());
         company.setBudget(dto.budget());

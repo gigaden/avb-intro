@@ -54,6 +54,17 @@ public class CompanyController {
     }
 
     /**
+     * Checks a company by id
+     */
+    @GetMapping("/{companyId}/exist")
+    @Operation(summary = "Check company", description = "Check a company by id")
+    public ResponseEntity<Boolean> checkCompanyIsExistById(@PathVariable Long companyId) {
+        boolean companyIsExist = companyService.checkCompanyIsExist(companyId);
+
+        return new ResponseEntity<>(companyIsExist, HttpStatus.OK);
+    }
+
+    /**
      * Adds a new company
      */
     @PostMapping

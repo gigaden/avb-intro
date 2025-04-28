@@ -1,3 +1,4 @@
+company-service.url: http://localhost:8080/api/companies
 server:
   port: 8081
 spring:

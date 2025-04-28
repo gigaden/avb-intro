@@ -16,16 +16,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Класс отлавливает исключения и возвращает ответ в нужном формате
+ * Class handles exceptions and returns responses in the required format
  */
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
 
-    @ExceptionHandler({UserNotFoundException.class})
+    @ExceptionHandler({UserNotFoundException.class,
+            CompanyNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleNotFound(final BaseException e, WebRequest request) {
-        log.error("Ошибка 404 {}: {} в запросе {}",
+        log.error("404 Error {}: {} in request {}",
                 e.getClass().getSimpleName(), e.getMessage(), request.getDescription(false));
         return buildErrorResponse(e, HttpStatus.NOT_FOUND, e.getReason());
     }
@@ -34,13 +35,24 @@ public class ErrorHandler {
             MethodArgumentNotValidException.class,
             ValidationException.class,
             NumberFormatException.class,
-            HttpMessageNotReadableException.class
+            HttpMessageNotReadableException.class,
+            ClientRequestException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> invalidMethodArgument(Exception e, WebRequest request) {
-        log.error("Ошибка  400 {}: {} в запросе {}",
+    public Map<String, String> handleBadRequest(Exception e, WebRequest request) {
+        log.error("400 Error {}: {} in request {}",
                 e.getClass().getSimpleName(), e.getMessage(), request.getDescription(false));
-        return buildErrorResponse(e, HttpStatus.BAD_REQUEST, "Неверный формат запроса");
+        return buildErrorResponse(e, HttpStatus.BAD_REQUEST, "Invalid request format");
+    }
+
+    @ExceptionHandler({
+            ServerRequestException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleServerError(final BaseException e, WebRequest request) {
+        log.error("500 Error {}: {} in request {}",
+                e.getClass().getSimpleName(), e.getMessage(), request.getDescription(false));
+        return buildErrorResponse(e, HttpStatus.BAD_REQUEST, e.getReason());
     }
 
     public Map<String, String> buildErrorResponse(Exception e, HttpStatus status, String reason) {

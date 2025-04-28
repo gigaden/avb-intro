@@ -57,4 +57,12 @@ public interface CompanyService {
      * @throws ru.gigaden.companyservice.exception.CompanyNotFoundException if company is not found
      */
     void deleteCompanyById(Long companyId);
+
+    /**
+     * Check a company by id
+     *
+     * @param companyId company id
+     * @return true if company is exist
+     */
+    boolean checkCompanyIsExist(Long companyId);
 }
