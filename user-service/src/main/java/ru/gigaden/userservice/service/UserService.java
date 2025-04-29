@@ -42,6 +42,13 @@ public interface UserService {
     Collection<UserResponseDto> getAllUsers();
 
     /**
+     * Gets a list of all users by companyId
+     *
+     * @return returns an empty list if there are no users
+     */
+    Collection<UserResponseDto> getAllUsersByCompanyId(Long companyId);
+
+    /**
      * Updates a user
      *
      * @param userId        user id

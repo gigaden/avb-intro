@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.gigaden.userservice.dto.UserCreateDto;
 import ru.gigaden.userservice.dto.UserResponseDto;
@@ -51,6 +52,17 @@ public class UserController {
         UserResponseDto userResponseDto = userService.getUserDtoById(userId);
 
         return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
+    }
+
+    /**
+     * Gets all users
+     */
+    @GetMapping("/company/{companyId}")
+    @Operation(summary = "Get users by company Id", description = "Retrieves all users from the database by company Id")
+    public ResponseEntity<Collection<UserResponseDto>> getAllUsersByCompanyId(@PathVariable Long companyId) {
+        Collection<UserResponseDto> users = userService.getAllUsersByCompanyId(companyId);
+
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     /**

@@ -16,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Класс отлавливает исключения и возвращает ответ в нужном формате
+ * Class handles exceptions and returns responses in the required format
  */
 @RestControllerAdvice
 @Slf4j
@@ -34,13 +34,24 @@ public class ErrorHandler {
             MethodArgumentNotValidException.class,
             ValidationException.class,
             NumberFormatException.class,
-            HttpMessageNotReadableException.class
+            HttpMessageNotReadableException.class,
+            ClientRequestException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> invalidMethodArgument(Exception e, WebRequest request) {
         log.error("Ошибка  400 {}: {} в запросе {}",
                 e.getClass().getSimpleName(), e.getMessage(), request.getDescription(false));
         return buildErrorResponse(e, HttpStatus.BAD_REQUEST, "Неверный формат запроса");
+    }
+
+    @ExceptionHandler({
+            ServerRequestException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleServerError(final BaseException e, WebRequest request) {
+        log.error("500 Error {}: {} in request {}",
+                e.getClass().getSimpleName(), e.getMessage(), request.getDescription(false));
+        return buildErrorResponse(e, HttpStatus.BAD_REQUEST, e.getReason());
     }
 
     public Map<String, String> buildErrorResponse(Exception e, HttpStatus status, String reason) {

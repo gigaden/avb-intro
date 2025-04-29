@@ -3,8 +3,10 @@ package ru.gigaden.companyservice.service.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.gigaden.companyservice.client.UserClient;
 import ru.gigaden.companyservice.dto.CompanyCreateDto;
 import ru.gigaden.companyservice.dto.CompanyResponseDto;
+import ru.gigaden.companyservice.dto.UserResponseDto;
 import ru.gigaden.companyservice.entity.Company;
 import ru.gigaden.companyservice.exception.CompanyNotFoundException;
 import ru.gigaden.companyservice.mapper.CompanyMapper;
@@ -12,6 +14,7 @@ import ru.gigaden.companyservice.repository.CompanyRepository;
 import ru.gigaden.companyservice.service.CompanyService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -20,6 +23,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
+    private final UserClient userClient;
 
     @Override
     public CompanyResponseDto createCompany(CompanyCreateDto companyCreateDto) {
@@ -32,7 +36,9 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public CompanyResponseDto getCompanyDtoById(Long companyId) {
-        return companyMapper.mapCompanyToResponseDto(getCompanyById(companyId));
+        Company company = getCompanyById(companyId);
+        List<UserResponseDto> users = userClient.getAllUsersByCompanyId(companyId);
+        return companyMapper.mapCompanyToResponseDto(company, users);
     }
 
     @Override
@@ -54,7 +60,8 @@ public class CompanyServiceImpl implements CompanyService {
         log.info("All companies has been received");
 
         return companies.stream()
-                .map(companyMapper::mapCompanyToResponseDto)
+                .map(c -> companyMapper
+                        .mapCompanyToResponseDto(c, userClient.getAllUsersByCompanyId(c.getId())))
                 .toList();
     }
 

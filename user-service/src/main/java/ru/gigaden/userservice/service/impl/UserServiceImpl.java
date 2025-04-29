@@ -16,6 +16,7 @@ import ru.gigaden.userservice.repository.UserRepository;
 import ru.gigaden.userservice.service.UserService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -73,6 +74,15 @@ public class UserServiceImpl implements UserService {
                 .map(el -> userMapper
                         .mapUserToResponseDto(el, companyClient.getCompanyById(el.getCompanyId()).orElse(null)))
                 .toList();
+    }
+
+    @Override
+    public Collection<UserResponseDto> getAllUsersByCompanyId(Long companyId) {
+        log.info("Trying to get all users by company id {}", companyId);
+        Collection<User> users = userRepository.findAllByCompanyId(companyId);
+        log.info("All users with company id {} has been received", companyId);
+
+        return users.stream().map(userMapper::mapUserToResponseDto).toList();
     }
 
     @Override
