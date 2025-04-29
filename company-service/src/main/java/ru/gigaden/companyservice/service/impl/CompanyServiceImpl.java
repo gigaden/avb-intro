@@ -3,6 +3,7 @@ package ru.gigaden.companyservice.service.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.gigaden.companyservice.client.UserClient;
 import ru.gigaden.companyservice.dto.CompanyCreateDto;
 import ru.gigaden.companyservice.dto.CompanyResponseDto;
@@ -19,6 +20,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 @Slf4j
+@Transactional
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
@@ -35,6 +37,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CompanyResponseDto getCompanyDtoById(Long companyId) {
         Company company = getCompanyById(companyId);
         List<UserResponseDto> users = userClient.getAllUsersByCompanyId(companyId);
@@ -42,6 +45,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Company getCompanyById(Long companyId) {
         log.info("Trying to get the company with an id {}", companyId);
         Company company = companyRepository.findById(companyId).orElseThrow(() -> {
@@ -54,6 +58,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<CompanyResponseDto> getAllCompanys() {
         log.info("Trying to get all companies");
         Collection<Company> companies = companyRepository.findAll();
@@ -84,6 +89,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean checkCompanyIsExist(Long companyId) {
         log.info("Trying to check the company by id {}", companyId);
         boolean isExist = companyRepository.existsById(companyId);
