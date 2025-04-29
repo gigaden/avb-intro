@@ -16,7 +16,6 @@ import ru.gigaden.userservice.repository.UserRepository;
 import ru.gigaden.userservice.service.UserService;
 
 import java.util.Collection;
-import java.util.List;
 
 @Service
 @AllArgsConstructor

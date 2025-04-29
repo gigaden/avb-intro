@@ -8,8 +8,6 @@ import ru.gigaden.companyservice.dto.CompanyResponseDto;
 import ru.gigaden.companyservice.dto.UserResponseDto;
 import ru.gigaden.companyservice.entity.Company;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)

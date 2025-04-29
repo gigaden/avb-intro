@@ -7,7 +7,7 @@ import java.util.Collection;
 
 /**
  * A repository for working with users
- * */
+ */
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Collection<User> findAllByCompanyId(Long companyId);

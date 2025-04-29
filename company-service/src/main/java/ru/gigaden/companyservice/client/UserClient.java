@@ -10,9 +10,7 @@ import ru.gigaden.companyservice.dto.UserResponseDto;
 import ru.gigaden.companyservice.exception.ClientRequestException;
 import ru.gigaden.companyservice.exception.ServerRequestException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 @Service
