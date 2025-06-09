@@ -2,6 +2,10 @@ package ru.gigaden.userservice.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.gigaden.userservice.client.CompanyClient;
@@ -15,7 +19,7 @@ import ru.gigaden.userservice.mapper.UserMapper;
 import ru.gigaden.userservice.repository.UserRepository;
 import ru.gigaden.userservice.service.UserService;
 
-import java.util.Collection;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -29,14 +33,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto createUser(UserCreateDto userCreateDto) {
-        log.info("Trying to create the user: {}", userCreateDto);
-        if (!companyClient.checkCompanyIsExist(userCreateDto.companyId())) {
-            throw new CompanyNotFoundException("Company is not exist");
-        }
-        User user = userRepository.save(userMapper.mapCreateUserDtoToUser(userCreateDto));
-        log.info("The User with id {} has been created", user.getId());
+        validateCompanyIsExist(userCreateDto.companyId());
 
-        return userMapper.mapUserToResponseDto(user);
+        User user = userMapper.mapCreateUserDtoToUser(userCreateDto);
+        User savedUser = userRepository.save(user);
+        UserResponseDto response = userMapper.mapUserToResponseDto(savedUser);
+        log.debug("The User with id {} has been created", savedUser.getId());
+
+        return response;
     }
 
     @Override
@@ -52,54 +56,65 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public User getUserById(Long userId) {
-        log.info("Trying to get the user with an id {}", userId);
         User user = userRepository.findById(userId).orElseThrow(() -> {
             log.warn("The user with id {} does not exist", userId);
             return new UserNotFoundException("The user doesn't exist");
         });
-        log.info("The user with id {} has been received", userId);
+        log.debug("The user with id {} has been received", userId);
 
         return user;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Collection<UserResponseDto> getAllUsers() {
-        log.info("Trying to get all users");
-        Collection<User> users = userRepository.findAll();
-        log.info("All users has been received");
-
-        return users.stream()
+    public Page<UserResponseDto> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> usersPage = userRepository.findAll(pageable);
+        List<UserResponseDto> result = usersPage.getContent().stream()
                 .map(el -> userMapper
                         .mapUserToResponseDto(el, companyClient.getCompanyById(el.getCompanyId()).orElse(null)))
                 .toList();
+
+        Page<UserResponseDto> users = new PageImpl<>(
+                result,
+                usersPage.getPageable(),
+                usersPage.getTotalElements()
+        );
+        log.debug("{} users has been received", users.getNumberOfElements());
+
+        return users;
     }
 
     @Override
-    public Collection<UserResponseDto> getAllUsersByCompanyId(Long companyId) {
-        log.info("Trying to get all users by company id {}", companyId);
-        Collection<User> users = userRepository.findAllByCompanyId(companyId);
-        log.info("All users with company id {} has been received", companyId);
+    public Page<UserResponseDto> getAllUsersByCompanyId(Long companyId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> usersPage = userRepository.findAllByCompanyId(companyId, pageable);
+        List<UserResponseDto> result = usersPage.getContent().stream().map(userMapper::mapUserToResponseDto).toList();
 
-        return users.stream().map(userMapper::mapUserToResponseDto).toList();
+        Page<UserResponseDto> users = new PageImpl<>(
+                result,
+                usersPage.getPageable(),
+                usersPage.getTotalElements()
+        );
+        log.debug("Users with company id {} has been received", companyId);
+
+        return users;
     }
 
     @Override
     public UserResponseDto updateUser(Long userId, UserCreateDto userCreateDto) {
-        log.info("Trying to update the user with id {}", userId);
         User user = getUserById(userId);
         setNewUsersField(user, userCreateDto);
-        log.info("The user with id {} has been updated", userId);
+        log.debug("The user with id {} has been updated", userId);
 
         return userMapper.mapUserToResponseDto(user);
     }
 
     @Override
     public void deleteUserById(Long userId) {
-        log.info("Trying to delete the user with id {}", userId);
         User user = getUserById(userId);
         userRepository.delete(user);
-        log.info("The user with id {} has been deleted", userId);
+        log.debug("The user with id {} has been deleted", userId);
     }
 
     public void setNewUsersField(User user, UserCreateDto dto) {
@@ -107,5 +122,11 @@ public class UserServiceImpl implements UserService {
         user.setLastName(dto.lastName());
         user.setPhoneNumber(dto.phoneNumber());
         user.setCompanyId(dto.companyId());
+    }
+
+    private void validateCompanyIsExist(Long companyId) {
+        if (!companyClient.checkCompanyIsExist(companyId)) {
+            throw new CompanyNotFoundException("Company is not exist");
+        }
     }
 }

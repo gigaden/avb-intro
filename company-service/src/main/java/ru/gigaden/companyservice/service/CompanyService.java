@@ -1,13 +1,12 @@
 package ru.gigaden.companyservice.service;
 
+import org.springframework.data.domain.Page;
 import ru.gigaden.companyservice.dto.CompanyCreateDto;
 import ru.gigaden.companyservice.dto.CompanyResponseDto;
 import ru.gigaden.companyservice.entity.Company;
 
-import java.util.Collection;
-
 /**
- * Contains the core logic for working with companys
+ * Contains the core logic for working with companies
  */
 public interface CompanyService {
 
@@ -35,11 +34,11 @@ public interface CompanyService {
     CompanyResponseDto getCompanyDtoById(Long companyId);
 
     /**
-     * Gets a list of all companys
+     * Gets a list of all companies
      *
-     * @return returns an empty list if there are no companys
+     * @return returns an empty list if there are no companies
      */
-    Collection<CompanyResponseDto> getAllCompanys();
+    Page<CompanyResponseDto> getAllCompanies(int from, int to);
 
     /**
      * Updates a company

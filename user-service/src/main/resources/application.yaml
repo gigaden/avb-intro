@@ -10,7 +10,8 @@ spring:
     username: dbuser
     password: 12345
   liquibase:
-    change-log: classpath:/db/changelog/changelog.xml
+    change-log: classpath:/db/changelog/changelog.yml
+    enabled: true
   jpa:
     properties:
       hibernate:

@@ -2,6 +2,10 @@ package ru.gigaden.companyservice.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.gigaden.companyservice.client.UserClient;
@@ -14,7 +18,6 @@ import ru.gigaden.companyservice.mapper.CompanyMapper;
 import ru.gigaden.companyservice.repository.CompanyRepository;
 import ru.gigaden.companyservice.service.CompanyService;
 
-import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -29,11 +32,11 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public CompanyResponseDto createCompany(CompanyCreateDto companyCreateDto) {
-        log.info("Trying to create the company: {}", companyCreateDto);
         Company company = companyRepository.save(companyMapper.mapCreateCompanyDtoToCompany(companyCreateDto));
-        log.info("The Company with id {} has been created", company.getId());
+        CompanyResponseDto response = companyMapper.mapCompanyToResponseDto(company);
+        log.debug("The Company with id {} has been created", company.getId());
 
-        return companyMapper.mapCompanyToResponseDto(company);
+        return response;
     }
 
     @Override
@@ -41,59 +44,66 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyResponseDto getCompanyDtoById(Long companyId) {
         Company company = getCompanyById(companyId);
         List<UserResponseDto> users = userClient.getAllUsersByCompanyId(companyId);
-        return companyMapper.mapCompanyToResponseDto(company, users);
+        CompanyResponseDto response = companyMapper.mapCompanyToResponseDto(company, users);
+
+        return response;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Company getCompanyById(Long companyId) {
-        log.info("Trying to get the company with an id {}", companyId);
         Company company = companyRepository.findById(companyId).orElseThrow(() -> {
             log.warn("The company with id {} does not exist", companyId);
             return new CompanyNotFoundException("The company doesn't exist");
         });
-        log.info("The company with id {} has been received", companyId);
+        log.debug("The company with id {} has been received", companyId);
 
         return company;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Collection<CompanyResponseDto> getAllCompanys() {
-        log.info("Trying to get all companies");
-        Collection<Company> companies = companyRepository.findAll();
-        log.info("All companies has been received");
+    public Page<CompanyResponseDto> getAllCompanies(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Company> companiesPage = companyRepository.findAll(pageable);
 
-        return companies.stream()
+        List<CompanyResponseDto> result = companiesPage.getContent().stream()
                 .map(c -> companyMapper
                         .mapCompanyToResponseDto(c, userClient.getAllUsersByCompanyId(c.getId())))
                 .toList();
+
+        Page<CompanyResponseDto> companies = new PageImpl<>(
+                result,
+                companiesPage.getPageable(),
+                companiesPage.getTotalElements()
+        );
+        log.debug("{} companies has been received", companies.getNumberOfElements());
+
+        return companies;
     }
 
     @Override
     public CompanyResponseDto updateCompany(Long companyId, CompanyCreateDto companyCreateDto) {
-        log.info("Trying to update the company with id {}", companyId);
         Company company = getCompanyById(companyId);
         setNewCompaniesField(company, companyCreateDto);
-        log.info("The company with id {} has been updated", companyId);
+        log.debug("The company with id {} has been updated", companyId);
 
         return companyMapper.mapCompanyToResponseDto(company);
     }
 
     @Override
     public void deleteCompanyById(Long companyId) {
-        log.info("Trying to delete the company with id {}", companyId);
         Company company = getCompanyById(companyId);
         companyRepository.delete(company);
-        log.info("The company with id {} has been deleted", companyId);
+        log.debug("The company with id {} has been deleted", companyId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean checkCompanyIsExist(Long companyId) {
-        log.info("Trying to check the company by id {}", companyId);
         boolean isExist = companyRepository.existsById(companyId);
-        log.info("The company with id {} is exist", companyId);
+        log.debug("The company with id {} is exist", companyId);
+
         return isExist;
     }
 

@@ -1,10 +1,9 @@
 package ru.gigaden.userservice.service;
 
+import org.springframework.data.domain.Page;
 import ru.gigaden.userservice.dto.UserCreateDto;
 import ru.gigaden.userservice.dto.UserResponseDto;
 import ru.gigaden.userservice.entity.User;
-
-import java.util.Collection;
 
 /**
  * Contains the core logic for working with users
@@ -39,14 +38,14 @@ public interface UserService {
      *
      * @return returns an empty list if there are no users
      */
-    Collection<UserResponseDto> getAllUsers();
+    Page<UserResponseDto> getAllUsers(int page, int size);
 
     /**
      * Gets a list of all users by companyId
      *
      * @return returns an empty list if there are no users
      */
-    Collection<UserResponseDto> getAllUsersByCompanyId(Long companyId);
+    Page<UserResponseDto> getAllUsersByCompanyId(Long companyId, int page, int size);
 
     /**
      * Updates a user
